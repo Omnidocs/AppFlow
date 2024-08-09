@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Omnidocs PostMessage Connector</title>
+</head>
+
+<body>
+  <div className="app">
+    <h1>Omnidocs PostMessage Connector</h1>
+    <hr />
+    <h2>Prerequisite</h2>
+    <ol>
+      <li>Create a new integration for your unit in the Omnidocs Create admin interface.</li>
+      <li>From the list click on the created integration and copy the <i>Client Integration URL.</i> 
+      <li>Paste the URL into the input field below.</li>
+    </ol>
+
+    <hr />  
+
+    <h2>Initialize</h2>
+    <label className="label">
+      Popup URL for Omnidocs Create:
+      <br />
+
+      <input id="popup-url" className="input" type="text" size="100"
+        value="https://{YOUR-SUB-DOMAIN}.{YOUR-DOMAIN}/units/{YOUR-UNIT-ID}/documents?integrationId={YOUR-INTEGRATION-ID}" />
+        
+    </label>
+    <br /><br />
+    <button id="create-button" type="button">Open Omnidocs Create</button>
+    <hr />
+    <label className="label">
+      <h2>Form Data</h2>
+      <table>
+        <tr>
+          <td>ID: </div></td>
+          <td><b><div id="data-id"></div></b></td>
+        </tr>
+        <tr>
+          <td>Form data context: </div></td>
+          <td><b><div id="form-data-context"></div></b></td>
+        </tr>
+        <tr>
+          <td>Data response timeout: </td>
+          <td><b><div id="timer"></div></b></td>
+      </tr>
+    </table>
+      <textarea id="response-data" rows="10" cols="100"></textarea>
+    </label>
+    <br />
+    <button id="send-data-response-button" type="button">Send data response</button>
+    <hr />
+    <h2>Delivery</h2>
+    <label className="label">
+      Document URL:
+      <br />
+      <input id="document-url" className="input" type="text" size="100" disabled="true" />
+    </label>
+  </div>
+  
+  <script src="postmessage-connector.js"></script>
+  <script>
+    document.getElementById("send-data-response-button").addEventListener("click", sendDataResponse)
+    async function sendDataResponse() {
+      var responesData = document.getElementById("response-data").value;
+      
+      await omnidocsPostMessageModule.sendDataResponse(responesData);
+    }
+
+    document.getElementById("create-button").addEventListener("click", createDocument);
+    async function createDocument() {
+      var popupUrl = document.getElementById("popup-url").value;
+      var documentUrl = await omnidocsPostMessageModule.getDocumentUrl(popupUrl);
+
+      document.getElementById("document-url").value = documentUrl;
+
+      window.location.href = documentUrl;
+    }
+  </script>
+</body>
+
+</html>
