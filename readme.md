@@ -150,11 +150,9 @@ classDiagram
 1. Create a new integration of type Post Message under Integrations in your Omnidocs Platform unit. 
 2. Clone this repository.
 3. Set subdomain and domain to match your Omnidocs Platform tenant.
-4. Utilize the integrationId from the integration outlined in step 1, along with the unit id corresponding to the Omnidocs Platform space. Make the necessary edits within the index.html file of the example application by updating the value: 
-<input id="popup-url" className="input" type="text" size="100" value="https://{YOUR-SUB-DOMAIN}.{YOUR-DOMAIN}/units/{YOUR-UNIT-ID}/documents?integrationId={YOUR-INTEGRATION-ID}" />
-5. In the folder containing the downloaded repository, run the following command:
-npm i && npm start 
-6. Navigate to http://localhost:8080 to interact with this example App Flow app.
+4. Utilize the integrationId from the integration outlined in step 1, along with the unit id corresponding to the Omnidocs Platform space. Make the necessary edits within the index.html file of the example application by updating the value: `<input id="popup-url" className="input" type="text" size="100" value="https://{YOUR-SUB-DOMAIN}.{YOUR-DOMAIN}/units/{YOUR-UNIT-ID}/documents?integrationId={YOUR-INTEGRATION-ID}"/>`
+5. In the folder containing the downloaded repository, run the following command: `npm i && npm start` 
+6. Navigate to `http://localhost:8080` to interact with this example App Flow app.
 7. Complete the document generation process. 
 8. The document can be accessed by opening the downloaded document url. 
 
