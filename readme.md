@@ -101,8 +101,12 @@ classDiagram
     }
 
     class PreflightResponse {
-        eventType:  String = 'omnidocs-preflight-response'
-        data: { getPdf: boolean } 
+        eventType: String = "omnidocs-preflight-response"
+        data: PreflightData
+    }
+
+    class PreflightData {
+        getPdf: Boolean = false
     }
 
     class FormContext {
