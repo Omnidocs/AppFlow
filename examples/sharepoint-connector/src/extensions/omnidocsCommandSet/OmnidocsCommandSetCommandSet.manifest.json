@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/command-set-extension-manifest.schema.json",
+  "id": "ca04f8cc-e3a1-4ea1-853e-d50ba5fa0a90", 
+  "alias": "OmnidocsCommandSet",
+  "componentType": "Extension",
+  "extensionType": "ListViewCommandSet",
+  "version": "1.0.0",
+  "manifestVersion": 2,
+  "items": {
+    "COMMAND_1": {
+      "title": { "default": "Create Document" },
+      "iconImageUrl": "data:image/png;base64,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",
+      "type": "command"
+    }
+  },
+  "properties": {
+    "configurationURL": "https://{subdomain}.{domain}.cloud/create/units/{unitId}/documents?integrationId={integrationId}"
+  }
+}

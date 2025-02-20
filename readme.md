@@ -20,7 +20,7 @@ The integration works by interacting with Omnidocs Platform using messages via t
 2. <b>Popup Initiation</b>: Subsequently, the third-party system opens a popup for the Omnidocs Platform.
 3. <b>Initialization</b>: The Omnidocs Platform sends an <b>'omnidocs-init-request'</b> message, to which the third-party system must respond with an <b>'omnidocs-init-response'</b> within three seconds.
 4. <b>Data Requests</b>: As new forms are presented, the Omnidocs Platform dispatches <b>'omnidocs-data-request'</b> messages. The third-party system is required to reply with <b>'omnidocs-data-response'</b> messages within 30 seconds, potentially including data.
-5. <b>Document Creation</b>: After the user fills out the form and clicks the Platform button, the Omnidocs Platform sends an <b>'omnidocs-delivery-request'</b> message.
+5. <b>Document Creation</b>: After the user fills out the form and clicks the Platform button, the Omnidocs Platform sends an <b>'omnidocs-deliver-request'</b> message.
 6. <b>Document Processing</b>: The third-party system processes the document and issues an <b>'omnidocs-deliver-response'</b>.
 7. <b>Completion</b>: Upon receiving a successful response, the Omnidocs Platform transmits an <b>'omnidocs-close-request'</b>, prompting the third-party system to close the popup.
 
@@ -40,22 +40,30 @@ sequenceDiagram
     end
     
     loop Each new form presented (recipe selected or nested form appears)
-        OC ->> 3rd: send `omnidocs-data-request` message
+        OC ->> 3rd: Send `omnidocs-data-request` message
         alt Response within 30s
-            3rd ->> OC: send `omnidocs-data-response` message
+            3rd ->> OC: Send `omnidocs-data-response` message
         end
     end
 
     User->>OC: Complete document creation in Create
+
+    %% Preflight request and response before deliver request
+    OC->>3rd: Send `omnidocs-preflight-request` message
+    alt Response within 1s
+        3rd->>OC: Send `omnidocs-preflight-response` message
+    end
+
+    %% deliver request after preflight check
     OC->>3rd: Send `omnidocs-deliver-request` message
 
     alt Response within 30s
         3rd->>3rd: Process request
-        3rd->>OC: Send `omnidocs-delivery-response` message
+        3rd->>OC: Send `omnidocs-deliver-response` message
     end
 
-    break When omnidocs-delivery-response was successful
-        OC ->> 3rd: send `omnidocs-close-request`
+    break When omnidocs-deliver-response was successful
+        OC ->> 3rd: Send `omnidocs-close-request`
         3rd->>User: Close Create popup
     end
 ```
@@ -87,6 +95,16 @@ classDiagram
         data: String[]
     }
 
+    class PreflightRequest {
+        eventType:  String = 'omnidocs-preflight-request'
+        correlationId: String
+    }
+
+    class PreflightResponse {
+        eventType:  String = 'omnidocs-preflight-response'
+        data: { getPdf: Boolean = false }
+    }
+
     class FormContext {
         <<enumeration>>
         Initial
@@ -103,8 +121,8 @@ classDiagram
         value: String
     }
 
-    class DeliveryRequest {
-        eventType: String = "omnidocs-delivery-request"
+    class deliverRequest {
+        eventType: String = "omnidocs-deliver-request"
         id: String
         correlationId: String
         documentType: DocumentType
@@ -128,15 +146,16 @@ classDiagram
 
     InitRequest --> InitResponse : Required response
     DataRequest --> DataResponse : Required response
-    DeliveryRequest --> DeliverResponse : Required response
+    deliverRequest --> DeliverResponse : Required response
+    PreflightRequest --> PreflightResponse : Optional response
     DataResponse  --> Metadata : contains
     InitResponse ..> PostMessageType : uses
     DataRequest ..> FormContext : uses
-    DeliveryRequest ..> DocumentType : uses
+    deliverRequest ..> DocumentType : uses
 ```
 
 ### Breakdown 
-- In the InitResponse (<i>omnidocs-init-response</i>), the client specifies which PostMessageType it wants. If <b>Document</b> is set (which is the default), then the DeliveryRequest (<i>omnidocs-delivery-request</i>) data will contain the document download URL.
+- In the InitResponse (<i>omnidocs-init-response</i>), the client specifies which PostMessageType it wants. If <b>Document</b> is set (which is the default), then the deliverRequest (<i>omnidocs-deliver-request</i>) data will contain the document download URL.
 - The data field in DataRequest (<i>omnidocs-data-request</i>) contains the form keys from the recipe. 
 - The formContext field in DataRequest (<i>omnidocs-data-request</i>) indicates the recipe context. <b>Initial</b> is the initially selected recipe, and <b>AdditionalForm</b> is the nested form.
 - The id field in all events is the recipe id, with one exception: if the DataRequest (<i>omnidocs-data-request</i>) form context is <b>AdditionalForm</b>, then it is the nested form ID that gets shown.
@@ -144,17 +163,39 @@ classDiagram
     - Omnidocs Create provides a correlationId in the InitRequest (<i>omnidocs-init-request</i>), which can be used in the client's InitResponse (<i>omnidocs-init-response</i>). This correlationId will then be included in every subsequent requests from Omnidocs Create.
 - The data field in DataResponse (<i>omnidocs-data-response</i>) containing the Metadata array of key-value pairs is represented by "key" = formKey and "value" = text to be added to that form.
     - The data field can be omitted.
-- The documentType in the DeliveryRequest (<i>omnidocs-delivery-request</i>) indicates the type of document created. <b>Document</b> is the full document, and <b>Element</b> is a partial document.
+    - Be mindful to include "key" and "label" values for entries, when filling in data for Select components and SearchableSelect components.
+- The documentType in the deliverRequest (<i>omnidocs-deliver-request</i>) indicates the type of document created. <b>Document</b> is the full document, and <b>Element</b> is a partial document.
+- The getPdf in the PreflightResponse (<i>omnidocs-preflight-response</i>) defines whether the deliverResponse (<i>omnidocs-deliver-response</i>) returns a file in a PDF format or defaults to the respective Office file type of the recipe. 
 
 ### How to use the example application
 1. Create a new integration of type Post Message under Integrations in your Omnidocs Platform unit. 
 2. Clone this repository.
-3. Set subdomain and domain to match your Omnidocs Platform tenant.
-4. Utilize the integrationId from the integration outlined in step 1, along with the unit id corresponding to the Omnidocs Platform space. Make the necessary edits within the index.html file of the example application by updating the value: `<input id="popup-url" className="input" type="text" size="100" value="https://{YOUR-SUB-DOMAIN}.{YOUR-DOMAIN}/units/{YOUR-UNIT-ID}/documents?integrationId={YOUR-INTEGRATION-ID}"/>`
-5. In the folder containing the downloaded repository, run the following command: `npm i && npm start` 
-6. Navigate to `http://localhost:8080` to interact with this example App Flow app.
-7. Complete the document generation process. 
-8. The document can be accessed by opening the downloaded document url. 
+3. Make the necessary edits within the index.html file of the example application by updating the value shown below. Set subdomain and domain to match your Omnidocs Platform tenant. Utilize the integrationId from the integration outlined in step 1, along with the unit id corresponding to the Omnidocs Platform space.
+``` 
+<input id="popup-url" className="input" type="text" size="100" value="https://{YOUR-SUB-DOMAIN}.{YOUR-DOMAIN}/units/{YOUR-UNIT-ID}/documents?integrationId={YOUR-INTEGRATION-ID}" /> 
+```
+4. In the folder containing the downloaded repository, run the following command:
+```
+npm i && npm start 
+```
+5. Navigate to http://localhost:8080 to interact with this example App Flow app.
+6. Complete the document generation process. 
+7. The document can be accessed by opening the downloaded document url. 
+
+### Opening options
+Since opening in an iframe is not supported for Single-Sign-On, there are a few options:
+#### Popup window
+- <b>Flow:</b> Your application opens a popup window to handle authentication and document generation. Once the process is complete, the popup uses the <i>postMessage</i> API to send the resulting data (e.g. a document link) back to the parent application.
+- <b>Pros:</b> Keeps the user within the main application, allowing for seamless interaction.
+- <b>Cons:</b> Popup blockers might interfere; Limited screen space.
+#### New Tab or Window
+- <b>Flow:</b> Your application opens a new tab or window. After the authentication and generation process, the new window sends the data back to the original application using the <i>postMessage</i> API.
+- <b>Pros:</b> Provides more space for complex interactions; Less likely to be blocked compared to popups.
+- <b>Cons:</b> May cause user confusion if multiple tabs are open.
+#### Redirect
+- <b>Flow:</b> Your application redirects the user to the authentication and document generation page. After completing the flow, the user is redirected back to the original application, and the data is passed back via URL parameters or session storage.
+- <b>Pros:</b> Simplifies the flow; No need to manage multiple windows.
+- <b>Cons:</b> Interrupts the user's session; Going back-and-forth can be disorienting.
 
 ### JS example
 ```
@@ -180,6 +221,16 @@ const initRequest = {
   correlationId: '4B8C1909-9B9E-4EE3-AC1B-6FDB4C5A2C42',
 };
 
+const preflightRequest = {
+    eventType: "omnidocs-preflight-request",
+    correlationId: '4B8C1909-9B9E-4EE3-AC1B-6FDB4C5A2C42'
+};
+
+const preflightResponse = {
+    eventType: 'omnidocs-preflight-response',
+    data: { getPdf: false }
+};
+
 const dataRequest = {
   eventType: 'omnidocs-data-request',
   id: '66a0b249d24875aa6326228c',
@@ -188,8 +239,8 @@ const dataRequest = {
   data: ['formkey', 'formkey2']
 };
 
-const deliveryRequest = {
-  eventType: 'omnidocs-delivery-request',
+const deliverRequest = {
+  eventType: 'omnidocs-deliver-request',
   id: '66a0b249d24875aa6326228c',
   correlationId: '4B8C1909-9B9E-4EE3-AC1B-6FDB4C5A2C42',
   documentType: 'Document', // or Element 

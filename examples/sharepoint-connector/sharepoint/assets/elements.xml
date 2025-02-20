@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+    <CustomAction
+        Title="OmnidocsCommandSet"
+        RegistrationId="101"
+        RegistrationType="List"
+		Sequence="1"
+        Location="ClientSideExtension.ListViewCommandSet.CommandBar"
+        ClientSideComponentId="ca04f8cc-e3a1-4ea1-853e-d50ba5fa0a90"
+        ClientSideComponentProperties="{&quot;configurationURL&quot;:&quot;https://{SUBDOMAIN}.{HOST_NAME}/units/{UNIT_ID}?integrationId={INTEGRATION_ID}&quot;}">
+    </CustomAction>
+</Elements>
