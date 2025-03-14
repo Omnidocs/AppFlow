@@ -257,5 +257,16 @@ const closeRequest = {
 };
 ```
 
+## Important note
+
+When downloading a file using the downloadUrl received in the DeliverResponse, determine the file extension based on the response headers.
+You can extract the file extension using one of the following headers:
+
+1. Content-Type header (e.g., application/vnd.openxmlformats-officedocument.wordprocessingml.document for a Word document).
+2. Content-Disposition header, which provides the filename and extension in the format:
+```
+attachment; filename={fileName}.{fileExtension}; filename*=UTF-8''{fileName}.{fileExtension}
+```
+
 ### References 
 Window postMessage: https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
