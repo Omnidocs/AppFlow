@@ -3,6 +3,7 @@ const initResponse = {
     eventType: 'omnidocs-init-response',
     correlationId: '4B8C1909-9B9E-4EE3-AC1B-6FDB4C5A2C42',
     postMessageType: 'Document',
+    editBeforeDelivery: false,
     enableLogging: false
 };
 
@@ -101,7 +102,6 @@ const omnidocsPostMessageModule = (function () {
                 }
 
                 if (messageData.eventType === 'omnidocs-close-request') {
-                    let closeRequest = getCloseRequest(messageData);
                     popup.close();
                 }
             },
@@ -120,6 +120,9 @@ const omnidocsPostMessageModule = (function () {
         initResponse.eventType = 'omnidocs-init-response';
         initResponse.correlationId = initRequest.correlationId;
         initResponse.postMessageType = 'Document';
+        
+        let editBeforeDeliveryCheckBox = document.getElementById("edit-before-delivery");
+        initResponse.editBeforeDelivery = editBeforeDeliveryCheckBox.checked;
 
         return initResponse;
     }
