@@ -82,7 +82,7 @@ classDiagram
         correlationId: String
         postMessageType: PostMessageType = Document
         editBeforeDelivery: Boolean = false
-        editFlowConfiguration: {}
+        editFlowConfiguration: Object
     }
 
     class PostMessageType {
