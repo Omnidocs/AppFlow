@@ -7,6 +7,7 @@ Key functionalities provided by the App Flow include:
 1. Accessing content stored on the Omnidocs Platform.
 2. Generating assets derived from submitted form data and user identity information.
 3. Enhancing forms with data sourced from third-party systems.
+4. Opening Omnidocs Edit Flow with provided config before downloading your document
 
 ## Prerequisites
 1. The App Flow must be hosted on HTTPS to ensure information security.
@@ -18,7 +19,7 @@ The integration works by interacting with Omnidocs Platform using messages via t
 
 1. <b>User Action</b>: The user initiates the process by clicking the "Create Document" button in the third-party system.
 2. <b>Popup Initiation</b>: Subsequently, the third-party system opens a popup for the Omnidocs Platform.
-3. <b>Initialization</b>: The Omnidocs Platform sends an <b>'omnidocs-init-request'</b> message, to which the third-party system must respond with an <b>'omnidocs-init-response'</b> within three seconds.
+3. <b>Initialization</b>: The Omnidocs Platform sends an <b>'omnidocs-init-request'</b> message, to which the third-party system must respond with an <b>'omnidocs-init-response'</b> within three seconds. Here it is also possible to send a EditFlowConfiguration along with the omnidocs-init-response. The configuration possibilities can be read in EditFlow documentation and is simply forwarded from App Flow if enabled. This allows you to open edit flow before you download the generated document, edit it and get the edited document served afterwards.
 4. <b>Data Requests</b>: As new forms are presented, the Omnidocs Platform dispatches <b>'omnidocs-data-request'</b> messages. The third-party system is required to reply with <b>'omnidocs-data-response'</b> messages within 30 seconds, potentially including data.
 5. <b>Document Creation</b>: After the user fills out the form and clicks the Platform button, the Omnidocs Platform sends an <b>'omnidocs-deliver-request'</b> message.
 6. <b>Document Processing</b>: The third-party system processes the document and issues an <b>'omnidocs-deliver-response'</b>.
@@ -81,6 +82,7 @@ classDiagram
         correlationId: String
         postMessageType: PostMessageType = Document
         editBeforeDelivery: Boolean = false
+        editFlowConfiguration: {}
     }
 
     class PostMessageType {
