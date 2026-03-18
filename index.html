@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Omnidocs PostMessage Connector</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Omnidocs PostMessage Connector</title>
 </head>
 
 <body>
@@ -25,13 +25,46 @@
             Popup URL for Omnidocs Create:
             <br />
             <input id="popup-url" className="input" type="text" size="100"
-                   value="https://{YOUR-SUB-DOMAIN}.{YOUR-DOMAIN}/create/units/{YOUR-UNIT-ID}/documents?integrationId={YOUR-INTEGRATION-ID}" />
+                value="https://{YOUR-SUB-DOMAIN}.{YOUR-DOMAIN}/create/units/{YOUR-UNIT-ID}/documents?integrationId={YOUR-INTEGRATION-ID}" />
         </label>
-        <br/>
-        <br/>
-        <label className="label">
+        <br />
+        <br />
+
+        <form className="label">
+            <h3>EditFlow configuration:</h3>
             Edit document with EditFlow before delivery
-            <input id="edit-before-delivery" type="checkbox"/>
+            <input id="edit-before-delivery" type="checkbox" />
+            <br />
+            <br />
+            <label>
+                <input type="radio" name="autoOpen" value="" checked>
+                Auto open disabled
+            </label>
+            <br>
+            <label>
+                <input type="radio" name="autoOpen" value="Wopi">
+                Auto open Wopi
+            </label>
+            <br>
+            <label>
+                <input type="radio" name="autoOpen" value="OnPrem">
+                Auto open OnPrem (WebDav)
+            </label>
+
+        </form>
+        <br />
+        <label className="label">
+            System name
+            <br />
+            <input id="system-name" className="input" type="text" size="100"
+                value="" placeholder="App-flow-example-app"/>
+        </label>
+        <br />
+        <label>
+            Additional Data:
+            <br />
+            <textarea style="margin: 8px 0;" id="edit-data" rows="10" cols="100"
+                placeholder='{ "Owner": "John Doe", "numbers": 1452341243 }'></textarea>
         </label>
 
         <br /><br />
@@ -44,23 +77,35 @@
                     <td>
                         ID:
                     </td>
-    <td><b><div id="data-id"></div></b></td>
-    </tr>
-    <tr>
+                    <td>
+                        <b>
+                            <div id="data-id"></div>
+                        </b>
+                    </td>
+                </tr>
+                <tr>
                     <td>Form data context: </td>
-        <td><b><div id="form-data-context"></div></b></td>
-    </tr>
-    <tr>
-        <td>Data response timeout: </td>
-        <td><b><div id="timer"></div></b></td>
-    </tr>
-    </table>
-    <textarea id="response-data" rows="10" cols="100"></textarea>
-    </label>
-    <br />
-    <button id="send-data-response-button" type="button">Send data response</button>
-    <hr />
-    <h2>Delivery</h2>
+                    <td>
+                        <b>
+                            <div id="form-data-context"></div>
+                        </b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Data response timeout: </td>
+                    <td>
+                        <b>
+                            <div id="timer"></div>
+                        </b>
+                    </td>
+                </tr>
+            </table>
+            <textarea id="response-data" rows="10" cols="100"></textarea>
+        </label>
+        <br />
+        <button id="send-data-response-button" type="button">Send data response</button>
+        <hr />
+        <h2>Delivery</h2>
         <div id="wrapper" style="display: flex; flex-direction: row;">
             <label for="yes_no_radio">Download as .pdf?</label>
             <p>
@@ -70,11 +115,11 @@
                 <input type="radio" name="yes_no" id="radio-download-default" checked>No</input>
             </p>
         </div>
-    <label className="label">
-        Document URL:
-        <br />
-        <input id="document-url" className="input" type="text" size="100" disabled="true" />
-    </label>
+        <label className="label">
+            Document URL:
+            <br />
+            <input id="document-url" className="input" type="text" size="100" disabled="true" />
+        </label>
     </div>
 
     <script src="postmessage-connector.js"></script>
