@@ -4,7 +4,8 @@ const initResponse = {
     correlationId: '4B8C1909-9B9E-4EE3-AC1B-6FDB4C5A2C42',
     postMessageType: 'Document',
     editBeforeDelivery: false,
-    enableLogging: false
+    enableLogging: false,
+    editFlowConfiguration: {}
 };
 
 const dataResponse = {
@@ -120,9 +121,39 @@ const omnidocsPostMessageModule = (function () {
         initResponse.eventType = 'omnidocs-init-response';
         initResponse.correlationId = initRequest.correlationId;
         initResponse.postMessageType = 'Document';
-        
+
         let editBeforeDeliveryCheckBox = document.getElementById("edit-before-delivery");
         initResponse.editBeforeDelivery = editBeforeDeliveryCheckBox.checked;
+
+        if (initResponse.editBeforeDelivery) {
+            let editConfig = {};
+            let autoOpenValue = null;
+
+            const autoOpenRadioButtons = document.getElementsByName('autoOpen');
+
+            for (const radioButton of autoOpenRadioButtons) {
+                if (radioButton.checked && radioButton.value) {
+                    autoOpenValue = radioButton.value;
+                    break;
+                }
+            }
+
+            editConfig.AutoOpenEditorType = autoOpenValue;
+            
+            editConfig.SystemName = document.getElementById("system-name").value;
+
+            let additionalData = document.getElementById("edit-data").value;
+
+            if (additionalData !== null && additionalData !== undefined && additionalData !== ""){
+                try {
+                    editConfig.AdditionalData = JSON.parse(additionalData);
+                } catch (err) {
+                    console.error(`Could not parse data: \r\n${err}`);
+                }
+            }
+
+            initResponse.editFlowConfiguration = editConfig;
+        }
 
         return initResponse;
     }
@@ -148,7 +179,7 @@ const omnidocsPostMessageModule = (function () {
             dataResponse.data = JSON.parse(responseData);
         } catch (err) {
             alert(`Could not process data. \r\n${err}`);
-        } 
+        }
 
         return dataResponse;
     }
